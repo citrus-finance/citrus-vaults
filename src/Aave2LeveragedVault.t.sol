@@ -9,15 +9,18 @@ import "./external/balancer-v2/IBalancerV2WeightedPool.sol";
 import "./external/balancer-v2/IBalancerV2Vault.sol";
 import "./external/uniswap-v2/IUniswapV2Router02.sol";
 
+import "./harvesters/BalancerPoolManager.sol";
+
 import "./Aave2LeveragedVault.sol";
 
 contract Aave2LeveragedVaultTest is Test {
     ERC20 wxdai = ERC20(0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d);
 
     Aave2LeveragedVault vault;
+    BalancerPoolManager balancerPoolManager;
 
     function setUp() public {
-        vm.createSelectFork(vm.envString("GNOSIS_RPC"), 24037070);
+        vm.createSelectFork(vm.envString("GNOSIS_RPC"));
         vault = new Aave2LeveragedVault(
             ERC20(wxdai),
             "Agave xDai",
@@ -25,6 +28,7 @@ contract Aave2LeveragedVaultTest is Test {
             ILendingPool(0x5E15d5E33d318dCEd84Bfe3F4EACe07909bE6d9c),
             IAaveIncentivesController(0xfa255f5104f129B78f477e9a6D050a02f31A5D86)
         );
+        balancerPoolManager = new BalancerPoolManager();
         vault.setMaxCollateralRatio(0.8e18);
         vault.setTargetCollateralRatio(0.78e18);
         vault.setManager(address(this));
@@ -47,14 +51,6 @@ contract Aave2LeveragedVaultTest is Test {
             uint256[] memory balances,
         ) = balancerVault.getPoolTokens(balancerPool.getPoolId());
 
-        uint256[] memory minAmountsOut = new uint256[](2);
-        IBalancerV2Vault.ExitPoolRequest memory request = IBalancerV2Vault.ExitPoolRequest({
-            assets: tokens,
-            minAmountsOut: minAmountsOut,
-            userData: abi.encode(1, harvestables[0].amount),
-            toInternalBalance: false
-        });
-
         IUniswapV2Router02 honeyswapRouter = IUniswapV2Router02(0x1C232F01118CB8B424793ae03F870aa7D0ac7f77);
 
         vault.increaseAllowance(ERC20(tokens[0]), address(honeyswapRouter));
@@ -69,18 +65,18 @@ contract Aave2LeveragedVaultTest is Test {
         gnoSwapPath[0] = tokens[1];
         gnoSwapPath[1] = address(wxdai);
 
-        vault.allowHarvestCall(address(balancerVault), 0x8bdb3913, true);
+        vault.allowHarvestCall(address(balancerPoolManager), 0x37a31fb6, true);
         vault.allowHarvestCall(address(honeyswapRouter), 0x38ed1739, true);
+
+        uint256[] memory minAmountsOut = new uint256[](2);
 
         HarvestCall[] memory calls = new HarvestCall[](3);
         calls[0] = HarvestCall({
-            target: address(balancerVault),
+            target: address(balancerPoolManager),
             callData: abi.encodeWithSelector(
-                balancerVault.exitPool.selector,
-                balancerPool.getPoolId(),
-                address(vault),
-                address(vault),
-                request
+                balancerPoolManager.exitPool.selector,
+                address(balancerPool),
+                minAmountsOut
             )
         });
         calls[1] = HarvestCall({
@@ -88,7 +84,7 @@ contract Aave2LeveragedVaultTest is Test {
             callData: abi.encodeWithSelector(
                 honeyswapRouter.swapExactTokensForTokens.selector,
                 ((balances[0] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                0,
+                minAmountsOut[0],
                 agveSwapPath,
                 address(vault),
                 block.timestamp
@@ -99,7 +95,7 @@ contract Aave2LeveragedVaultTest is Test {
             callData: abi.encodeWithSelector(
                 honeyswapRouter.swapExactTokensForTokens.selector,
                 ((balances[1] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                0,
+                minAmountsOut[0],
                 gnoSwapPath,
                 address(vault),
                 block.timestamp

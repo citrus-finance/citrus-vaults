@@ -5,4 +5,5 @@ interface IBalancerV2WeightedPool {
     function getVault() external view returns (address);
     function getNormalizedWeights() external view returns (uint256[] memory);
     function totalSupply() external view returns (uint256);
+    function balanceOf(address) external view returns (uint256);
 }
