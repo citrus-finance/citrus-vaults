@@ -1,7 +1,6 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import "solmate/tokens/ERC20.sol";
 
 import "../external/balancer-v2/IBalancerV2Vault.sol";
 import "../external/balancer-v2/IBalancerV2WeightedPool.sol";
@@ -20,7 +19,7 @@ contract BalancerPoolManager {
             .ExitPoolRequest({
                 assets: tokens,
                 minAmountsOut: minAmountsOut,
-                userData: abi.encode(1, ERC20(pool).balanceOf(address(this))),
+                userData: abi.encode(1, balancerPool.balanceOf(address(this))),
                 toInternalBalance: false
             });
 
