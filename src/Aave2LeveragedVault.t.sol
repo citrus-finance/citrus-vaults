@@ -65,15 +65,18 @@ contract Aave2LeveragedVaultTest is Test {
         gnoSwapPath[0] = tokens[1];
         gnoSwapPath[1] = address(wxdai);
 
-        vault.allowHarvestCall(address(balancerPoolManager), 0xba5a2d33, true);
+        vault.allowHarvestCall(address(balancerPoolManager), 0x37a31fb6, true);
         vault.allowHarvestCall(address(honeyswapRouter), 0x38ed1739, true);
+
+        uint256[] memory minAmountsOut = new uint256[](2);
 
         HarvestCall[] memory calls = new HarvestCall[](3);
         calls[0] = HarvestCall({
             target: address(balancerPoolManager),
             callData: abi.encodeWithSelector(
                 balancerPoolManager.exitPool.selector,
-                address(balancerPool)
+                address(balancerPool),
+                minAmountsOut
             )
         });
         calls[1] = HarvestCall({
@@ -81,7 +84,7 @@ contract Aave2LeveragedVaultTest is Test {
             callData: abi.encodeWithSelector(
                 honeyswapRouter.swapExactTokensForTokens.selector,
                 ((balances[0] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                0,
+                minAmountsOut[0],
                 agveSwapPath,
                 address(vault),
                 block.timestamp
@@ -92,7 +95,7 @@ contract Aave2LeveragedVaultTest is Test {
             callData: abi.encodeWithSelector(
                 honeyswapRouter.swapExactTokensForTokens.selector,
                 ((balances[1] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                0,
+                minAmountsOut[0],
                 gnoSwapPath,
                 address(vault),
                 block.timestamp

@@ -7,7 +7,7 @@ import "../external/balancer-v2/IBalancerV2Vault.sol";
 import "../external/balancer-v2/IBalancerV2WeightedPool.sol";
 
 contract BalancerPoolManager {
-    function exitPool(address pool) public {
+    function exitPool(address pool, uint256[] memory minAmountsOut) public {
         IBalancerV2WeightedPool balancerPool = IBalancerV2WeightedPool(pool);
         IBalancerV2Vault balancerVault = IBalancerV2Vault(
             balancerPool.getVault()
@@ -16,7 +16,6 @@ contract BalancerPoolManager {
 
         (address[] memory tokens, , ) = balancerVault.getPoolTokens(poolId);
 
-        uint256[] memory minAmountsOut = new uint256[](2);
         IBalancerV2Vault.ExitPoolRequest memory request = IBalancerV2Vault
             .ExitPoolRequest({
                 assets: tokens,
