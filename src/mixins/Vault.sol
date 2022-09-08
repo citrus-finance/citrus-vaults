@@ -75,12 +75,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
             bool success;
             bytes memory ret;
 
-            // temporary solution until swapExactTokensForTokens calls are changed
-            if (i > 0) {
-                (success, ret) = calls[i].target.call(calls[i].callData);
-            } else {
-                (success, ret) = calls[i].target.delegatecall(calls[i].callData);
-            }
+            (success, ret) = calls[i].target.delegatecall(calls[i].callData);
             
             if (!success) {
                 // Next 5 lines from https://ethereum.stackexchange.com/a/83577

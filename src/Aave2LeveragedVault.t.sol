@@ -10,6 +10,7 @@ import "./external/balancer-v2/IBalancerV2Vault.sol";
 import "./external/uniswap-v2/IUniswapV2Router02.sol";
 
 import "./harvesters/BalancerPoolManager.sol";
+import "./harvesters/Swapper.sol";
 
 import "./Aave2LeveragedVault.sol";
 
@@ -18,6 +19,7 @@ contract Aave2LeveragedVaultTest is Test {
 
     Aave2LeveragedVault vault;
     BalancerPoolManager balancerPoolManager;
+    Swapper swapper;
 
     function setUp() public {
         vm.createSelectFork(vm.envString("GNOSIS_RPC"));
@@ -29,6 +31,7 @@ contract Aave2LeveragedVaultTest is Test {
             IAaveIncentivesController(0xfa255f5104f129B78f477e9a6D050a02f31A5D86)
         );
         balancerPoolManager = new BalancerPoolManager();
+        swapper = new Swapper();
         vault.setMaxCollateralRatio(0.8e18);
         vault.setTargetCollateralRatio(0.78e18);
         vault.setManager(address(this));
@@ -47,8 +50,7 @@ contract Aave2LeveragedVaultTest is Test {
         IBalancerV2WeightedPool balancerPool = IBalancerV2WeightedPool(harvestables[0].token);
         IBalancerV2Vault balancerVault = IBalancerV2Vault(balancerPool.getVault());
         (
-            address[] memory tokens,
-            uint256[] memory balances,
+            address[] memory tokens, ,
         ) = balancerVault.getPoolTokens(balancerPool.getPoolId());
 
         IUniswapV2Router02 honeyswapRouter = IUniswapV2Router02(0x1C232F01118CB8B424793ae03F870aa7D0ac7f77);
@@ -66,7 +68,7 @@ contract Aave2LeveragedVaultTest is Test {
         gnoSwapPath[1] = address(wxdai);
 
         vault.allowHarvestCall(address(balancerPoolManager), 0x37a31fb6, true);
-        vault.allowHarvestCall(address(honeyswapRouter), 0x38ed1739, true);
+        vault.allowHarvestCall(address(swapper), 0x0004a85b, true);
 
         uint256[] memory minAmountsOut = new uint256[](2);
 
@@ -80,25 +82,21 @@ contract Aave2LeveragedVaultTest is Test {
             )
         });
         calls[1] = HarvestCall({
-            target: address(honeyswapRouter),
+            target: address(swapper),
             callData: abi.encodeWithSelector(
-                honeyswapRouter.swapExactTokensForTokens.selector,
-                ((balances[0] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                minAmountsOut[0],
+                swapper.uniswapSwap.selector,
+                honeyswapRouter,
                 agveSwapPath,
-                address(vault),
-                block.timestamp
+                minAmountsOut[0]
             )
         });
         calls[2] = HarvestCall({
-            target: address(honeyswapRouter),
+            target: address(swapper),
             callData: abi.encodeWithSelector(
-                honeyswapRouter.swapExactTokensForTokens.selector,
-                ((balances[1] * harvestables[0].amount * 999) / (balancerPool.totalSupply() * 1000)),
-                minAmountsOut[0],
+                swapper.uniswapSwap.selector,
+                honeyswapRouter,
                 gnoSwapPath,
-                address(vault),
-                block.timestamp
+                minAmountsOut[0]
             )
         });
         vault.harvest(calls);
