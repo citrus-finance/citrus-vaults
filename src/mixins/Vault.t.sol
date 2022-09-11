@@ -125,13 +125,41 @@ contract VaultTest is Test {
     function testPreviewWithdraw() public {
         vault.setWithdrawalFee(0.01e18); // 1%
 
-        assertEq(vault.previewWithdraw(99e18), 100e18);
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+        token.mint(address(vault), 100e18);
+
+        assertEq(vault.previewWithdraw(198e18), 100e18);
     }
 
     function testPreviewRedeem() public {
         vault.setWithdrawalFee(0.01e18); // 1%
 
-        assertEq(vault.previewRedeem(100e18), 99e18);
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+        token.mint(address(vault), 100e18);
+
+        assertEq(vault.previewRedeem(100e18), 198e18);
+    }
+
+    function testConvertToShares() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+        token.mint(address(vault), 100e18);
+
+        assertEq(vault.convertToShares(200e18), 100e18);
+    }
+
+    function testConvertToAssets() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+        token.mint(address(vault), 100e18);
+
+        assertEq(vault.convertToAssets(100e18), 200e18);
     }
 
     function testHarvest() public {
