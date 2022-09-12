@@ -52,17 +52,15 @@ contract VaultLensTest is Test {
     }
 
     function testAPY() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 0.04e18)
-        });
+        token.mint(address(vault), 0.04e18);
+
         vault.harvest(calls);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
@@ -71,25 +69,21 @@ contract VaultLensTest is Test {
     }
 
     function testAPYWithRollingTimestamp() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 90e18);
         vault.deposit(90e18, address(this));
 
         skip(type(uint32).max - 50);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 10e18)
-        });
+        token.mint(address(vault), 10e18);
+
         vault.harvest(calls);
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 0.04e18)
-        });
+        token.mint(address(vault), 0.04e18);
+
         vault.harvest(calls);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
@@ -98,7 +92,7 @@ contract VaultLensTest is Test {
     }
 
     function testNegativeAPY() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
@@ -107,10 +101,6 @@ contract VaultLensTest is Test {
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1)
-        });
         vault.harvest(calls);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
@@ -129,6 +119,48 @@ contract VaultLensTest is Test {
         assertEq(metadataArr[0].vault, address(vault));
         assertEq(metadataArr[0].asset, address(token));
         assertEq(metadataArr[0].apy, 0);
+    }
+
+    function testUserVaultMetadata() public {
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+
+        VaultLens.UserVaultMetadata memory metadata = lens.getUserVaultMetadata(address(this), vault);
+
+        assertEq(metadata.vault, address(vault));
+        assertEq(metadata.asset, address(token));
+        assertEq(metadata.apy, 0);
+        assertEq(metadata.balance, 100e18);
+    }
+
+    function testUserVaultsMetadata() public {
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+
+        Vault[] memory vaults = new Vault[](1);
+        vaults[0] = vault;
+        VaultLens.UserVaultMetadata[] memory metadata = lens.getUserVaultsMetadata(address(this), vaults);
+
+        assertEq(metadata[0].vault, address(vault));
+        assertEq(metadata[0].asset, address(token));
+        assertEq(metadata[0].apy, 0);
+        assertEq(metadata[0].balance, 100e18);
+    }
+
+    function testUserVaultsMetadataWithMoreAssetsInVault() public {
+        token.mint(address(vault), 10e18);
+
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+
+        Vault[] memory vaults = new Vault[](1);
+        vaults[0] = vault;
+        VaultLens.UserVaultMetadata[] memory metadata = lens.getUserVaultsMetadata(address(this), vaults);
+
+        assertEq(metadata[0].vault, address(vault));
+        assertEq(metadata[0].asset, address(token));
+        assertEq(metadata[0].apy, 0);
+        assertEq(metadata[0].balance, 110e18);
     }
 }
 

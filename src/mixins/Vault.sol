@@ -91,7 +91,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
 
         uint256 balanceAfter = totalAssets();
 
-        require(balanceAfter > balanceBefore, "negative harvest");
+        require(balanceAfter >= balanceBefore, "negative harvest");
         uint256 diffBalance;
         unchecked {
           diffBalance = balanceAfter - balanceBefore;

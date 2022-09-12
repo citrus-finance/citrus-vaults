@@ -168,11 +168,8 @@ contract VaultTest is Test {
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 100e18);
 
-        HarvestCall[] memory calls = new HarvestCall[](1);
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1e18)
-        });
+        HarvestCall[] memory calls = new HarvestCall[](0);
+        token.mint(address(vault), 1e18);
         vault.harvest(calls);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 101e18);
@@ -186,11 +183,8 @@ contract VaultTest is Test {
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 100e18);
 
-        HarvestCall[] memory calls = new HarvestCall[](1);
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 10e18)
-        });
+        HarvestCall[] memory calls = new HarvestCall[](0);
+        token.mint(address(vault), 9e18);
         vault.harvest(calls);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 109e18);
@@ -224,11 +218,8 @@ contract VaultTest is Test {
 
         skip(999);
 
-        HarvestCall[] memory calls = new HarvestCall[](1);
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 10e18)
-        });
+        HarvestCall[] memory calls = new HarvestCall[](0);
+        token.mint(address(vault), 10e18);
         vault.harvest(calls);
 
         assertEq(vault.convertToAssets(1e18), 1.1e18);
@@ -253,17 +244,15 @@ contract VaultTest is Test {
     }
 
     function testYield() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 0.04e18)
-        });
+        token.mint(address(vault), 0.04e18);
+        
         vault.harvest(calls);
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
@@ -273,25 +262,21 @@ contract VaultTest is Test {
     }
 
     function testYieldWithRollingTimestamp() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 90e18);
         vault.deposit(90e18, address(this));
 
         skip(type(uint32).max - 50);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 10e18)
-        });
+        token.mint(address(vault), 10e18);
+
         vault.harvest(calls);
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 0.04e18)
-        });
+        token.mint(address(vault), 0.04e18);
+
         vault.harvest(calls);
 
 
@@ -302,7 +287,7 @@ contract VaultTest is Test {
     }
 
     function testNegativeYield() public {
-        HarvestCall[] memory calls = new HarvestCall[](1);
+        HarvestCall[] memory calls = new HarvestCall[](0);
 
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
@@ -311,10 +296,8 @@ contract VaultTest is Test {
 
         skip(1 days);
 
-        calls[0] = HarvestCall({
-            target: address(token),
-            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1)
-        });
+        token.mint(address(vault), 1);
+
         vault.harvest(calls);
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
