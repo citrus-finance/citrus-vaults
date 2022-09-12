@@ -197,4 +197,40 @@ contract LeveragedLendingVaultTest is Test {
         assertEq(vault.getBorrowedFromProtocol(), 0);
         assertEq(vault.totalAssets(), 0);
     }
+
+    function testSettingMaxCollateralHigherByOwner() public {
+        address manager = makeAddr("manager");
+        vault.setManager(manager);
+
+        vault.setMaxCollateralRatio(1e18);
+    }
+
+    function testSettingMaxCollateralHigherByManager() public {
+        address manager = makeAddr("manager");
+        vault.setManager(manager);
+
+        vm.expectRevert(bytes("Only Owner can raise maxCollateralRatio"));
+        vm.prank(manager);
+        vault.setMaxCollateralRatio(1e18);
+    }
+
+    function testSettingMaxCollateralLowerByOwner() public {
+        address manager = makeAddr("manager");
+        vault.setManager(manager);
+
+        vault.setMaxCollateralRatio(0.5e18);
+    }
+
+    function testSettingMaxCollateralLowerByManager() public {
+        address manager = makeAddr("manager");
+        vault.setManager(manager);
+
+        vm.prank(manager);
+        vault.setMaxCollateralRatio(0.5e18);
+    }
+
+    function testSettingTargetCollateralLowerOverMax() public {
+        vm.expectRevert(bytes("Cannot set targetCollateralRatio over maxCollateralRatio"));
+        vault.setTargetCollateralRatio(1e18);
+    }
 }

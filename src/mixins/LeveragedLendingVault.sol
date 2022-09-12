@@ -55,7 +55,7 @@ abstract contract LeveragedLendingVault is Vault {
             // ramp down
             while(borrowed * 1e18 > targetBorrow * 1.005e18) {
                 uint256 toRepay = borrowed - targetBorrow;
-                uint256 maxRepay = ((supplied * maxCollateralRatio) / 1e18) - borrowed;
+                uint256 maxRepay = FixedPointMathLib.mulDivDown(supplied, maxCollateralRatio, 1e18) - borrowed;
 
                 if (toRepay > maxRepay) {
                     toRepay = maxRepay;
@@ -111,7 +111,7 @@ abstract contract LeveragedLendingVault is Vault {
         emit MaxCollateralRatioUpdated(oldMaxCollateralRatio, newMaxCollateralRatio);
     }
 
-    function setTargetCollateralRatio(uint256 newTargetCollateralRatio) public onlyOwner {
+    function setTargetCollateralRatio(uint256 newTargetCollateralRatio) public onlyManagerOrOwner {
         require(newTargetCollateralRatio < maxCollateralRatio, "Cannot set targetCollateralRatio over maxCollateralRatio");
         emit TargetCollateralRatioUpdated(targetCollateralRatio, newTargetCollateralRatio);
         targetCollateralRatio = newTargetCollateralRatio;
