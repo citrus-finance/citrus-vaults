@@ -36,11 +36,13 @@ contract Aave2LeveragedVaultTest is Test {
         vault.setTargetCollateralRatio(0.78e18);
         vault.setManager(address(this));
         wxdai.approve(address(vault), type(uint256).max);
+        vault.setHarvestFee(0.05e18);
     }
 
     function testAgave() public {
         deal(address(wxdai), address(this), 100e18);
         vault.deposit(100e18, address(this));
+        vault.rebalance();
 
         vm.warp(block.timestamp + 1 days);
         vm.roll(block.number + 17280);
