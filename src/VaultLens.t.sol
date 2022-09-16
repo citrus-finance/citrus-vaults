@@ -119,6 +119,7 @@ contract VaultLensTest is Test {
         assertEq(metadataArr[0].vault, address(vault));
         assertEq(metadataArr[0].asset, address(token));
         assertEq(metadataArr[0].apy, 0);
+        assertEq(metadataArr[0].totalAssets, 100e18);
     }
 
     function testUserVaultMetadata() public {

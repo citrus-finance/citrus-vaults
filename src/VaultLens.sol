@@ -9,6 +9,7 @@ contract VaultLens {
         address vault;
         address asset;
         int256 apy;
+        uint256 totalAssets;
         Harvestable[] harvestable;
     }
 
@@ -28,6 +29,7 @@ contract VaultLens {
             vault: address(vault),
             asset: address(vault.asset()),
             apy: apy,
+            totalAssets: vault.totalAssets(),
             harvestable: vault.harvestable()
         });
     }
