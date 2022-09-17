@@ -1,4 +1,5 @@
-pragma solidity >=0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.15;
 
 import "../external/balancer-v2/IBalancerV2Vault.sol";
 import "../external/balancer-v2/IBalancerV2WeightedPool.sol";

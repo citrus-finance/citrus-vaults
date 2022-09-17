@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: None
-pragma solidity >=0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.15;
 
 import "BoringSolidity/interfaces/IERC20.sol";
 
