@@ -133,6 +133,7 @@ contract VaultLensTest is Test {
         assertEq(metadata.asset, address(token));
         assertEq(metadata.apy, 0);
         assertEq(metadata.balance, 100e18);
+        assertEq(metadata.assetBalance, 0);
     }
 
     function testUserVaultsMetadata() public {
@@ -147,6 +148,7 @@ contract VaultLensTest is Test {
         assertEq(metadata[0].asset, address(token));
         assertEq(metadata[0].apy, 0);
         assertEq(metadata[0].balance, 100e18);
+        assertEq(metadata[0].assetBalance, 0);
     }
 
     function testUserVaultsMetadataWithMoreAssetsInVault() public {
@@ -163,6 +165,19 @@ contract VaultLensTest is Test {
         assertEq(metadata[0].asset, address(token));
         assertEq(metadata[0].apy, 0);
         assertEq(metadata[0].balance, 110e18);
+        assertEq(metadata[0].assetBalance, 0);
+    }
+
+    function testUserAssetBalanceMetadata() public {
+        token.mint(address(this), 100e18);
+        vault.deposit(30e18, address(this));
+
+        VaultLens.UserVaultMetadata memory metadata = lens.getUserVaultMetadata(address(this), vault);
+
+        assertEq(metadata.vault, address(vault));
+        assertEq(metadata.asset, address(token));
+        assertEq(metadata.balance, 30e18);
+        assertEq(metadata.assetBalance, 70e18);
     }
 }
 

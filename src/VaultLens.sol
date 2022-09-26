@@ -20,6 +20,7 @@ contract VaultLens {
         int apy;
         uint8 decimals;
         uint balance;
+        uint assetBalance;
     }
 
     function getVaultMetadata(Vault vault) public view returns (VaultMetadata memory) {
@@ -44,8 +45,9 @@ contract VaultLens {
     }
 
     function getUserVaultMetadata(address user, Vault vault) public view returns (UserVaultMetadata memory) {
-        uint balance = vault.convertToAssets(vault.balanceOf(user));
         uint8 decimals = vault.decimals();
+        uint balance = vault.convertToAssets(vault.balanceOf(user));
+        uint assetBalance = vault.asset().balanceOf(user);
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
         int256 apy = (int256(LogExpMath.pow(uint256(diffAssetsPerShare + 1e18), (365 days / diffTimestamp) * 1e18)) - 1e18) * 100;
@@ -55,7 +57,8 @@ contract VaultLens {
             asset: address(vault.asset()),
             apy: apy,
             decimals: decimals,
-            balance: balance
+            balance: balance,
+            assetBalance: assetBalance
         });
     }
 
