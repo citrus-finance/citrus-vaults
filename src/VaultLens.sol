@@ -11,6 +11,8 @@ contract VaultLens {
         address asset;
         int256 apy;
         uint8 decimals;
+        uint256 withdrawalFee;
+        uint256 harvestFee;
         uint256 totalAssets;
         Harvestable[] harvestable;
     }
@@ -20,6 +22,8 @@ contract VaultLens {
         address asset;
         int apy;
         uint8 decimals;
+        uint256 withdrawalFee;
+        uint256 harvestFee;
         uint balance;
         uint assetBalance;
     }
@@ -35,6 +39,8 @@ contract VaultLens {
             asset: address(vault.asset()),
             apy: apy,
             decimals: decimals,
+            withdrawalFee: vault.withdrawalFee(),
+            harvestFee: vault.harvestFee(),
             totalAssets: vault.totalAssets(),
             harvestable: vault.harvestable()
         });
@@ -61,6 +67,8 @@ contract VaultLens {
             asset: address(vault.asset()),
             apy: apy,
             decimals: decimals,
+            withdrawalFee: vault.withdrawalFee(),
+            harvestFee: vault.harvestFee(),
             balance: balance,
             assetBalance: assetBalance
         });
