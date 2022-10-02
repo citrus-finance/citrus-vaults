@@ -4,9 +4,9 @@ pragma solidity 0.8.15;
 import "./Vault.sol";
 
 abstract contract LeveragedLendingVault is Vault {
-    uint256 targetCollateralRatio;
+    uint256 public targetCollateralRatio;
 
-    uint256 maxCollateralRatio;
+    uint256 public maxCollateralRatio;
 
     event TargetCollateralRatioUpdated(uint256 oldTargetCollateralRatio, uint256 newTargetCollateralRatio);
 
@@ -29,7 +29,7 @@ abstract contract LeveragedLendingVault is Vault {
 
         uint256 borrowed = getBorrowedFromProtocol();
         uint256 supplied = getSuppliedToProtocol();
-        uint256 targetBorrow =  FixedPointMathLib.mulDivDown(targetCollateralRatio, supplied - borrowed - amountToFreeUp, 1e18 - targetCollateralRatio);
+        uint256 targetBorrow = FixedPointMathLib.mulDivDown(targetCollateralRatio, supplied - borrowed - amountToFreeUp, 1e18 - targetCollateralRatio);
 
         if (borrowed < targetBorrow) {
             // ramp up

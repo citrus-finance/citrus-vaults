@@ -27,7 +27,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
     using FixedPointMathLib for uint256;
 
     event UpdateFeeExclusion(address user, bool excluded);
-    event UpdateHarvestCallAuthorisation(address target, bytes4 sig, bool allowed);
+    event UpdateAllowedHarvester(address target, bool allowed);
     event Harvest(uint assetsPerShare, uint sharesToHarvester);
 
     // @notice The manager is allowed to perform some privileged actions on the vault, 
@@ -42,11 +42,19 @@ abstract contract Vault is ERC4626, BoringOwnable {
     // @notice Harvesting generate . 1e18 is 100%
     uint256 public harvestFee;
 
+    // @notice stores assetsPerShare evolution over time
+    // @dev used to calculate yield/apy
     HarvestCheckpoint[] public harvestCheckpoints;
 
+    // @notice addresses that are excluded from fees
     mapping(address => bool) public excludedFromFees;
 
-    mapping(address=> mapping(bytes4 => bool)) harvesAllowedCalls;
+    // @notice address of contracts that could be called during harvest
+    mapping(address => bool) public allowedHarvesters;
+
+    // @notice array of contracts that could be called during harvest
+    // @dev only use this to check if a contract should be removed, some disabled harvesters can be in this array
+    address[] public _allHarvesters;
 
     constructor(
         ERC20 _asset,
@@ -71,7 +79,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
 
         returnData = new bytes[](calls.length);
         for(uint256 i = 0; i < calls.length; i++) {
-            require(harvesAllowedCalls[calls[i].target][bytes4(calls[i].callData)], "method not whitelisted");
+            require(allowedHarvesters[calls[i].target], "harvestor not allowed");
 
             bool success;
             bytes memory ret;
@@ -113,13 +121,19 @@ abstract contract Vault is ERC4626, BoringOwnable {
         afterHarvest();
     }
 
-    function allowHarvestCall(address target, bytes4 sig, bool allowed) public onlyOwner {
-        harvesAllowedCalls[target][sig] = allowed;
-        emit UpdateHarvestCallAuthorisation(target, sig, allowed);
+    // @notice approve a contract to be used during harvesting
+    function allowHarvester(address target, bool allowed) public onlyOwner {
+        if (allowed) {
+            _allHarvesters.push(target);
+        }
+        allowedHarvesters[target] = allowed;
+        emit UpdateAllowedHarvester(target, allowed);
     }
 
-    function increaseAllowance(ERC20 token, address spender) public onlyOwner returns (bool) {
-        return token.approve(spender, type(uint256).max);
+    // @notive get array of all contracts ever allowed
+    // @dev could contains harvester that are now disabled
+    function allHarvesters() public view returns (address[] memory) {
+        return _allHarvesters;
     }
 
     /////  Checkpoints  /////

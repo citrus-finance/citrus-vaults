@@ -18,7 +18,7 @@ contract BalancerPoolManager {
             .ExitPoolRequest({
                 assets: tokens,
                 minAmountsOut: minAmountsOut,
-                userData: abi.encode(1, balancerPool.balanceOf(address(this))),
+                userData: abi.encode(1, balancerPool.balanceOf(address(this)) - 1),
                 toInternalBalance: false
             });
 

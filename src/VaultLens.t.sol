@@ -38,7 +38,7 @@ contract VaultLensTest is Test {
         vault.setManager(address(this));
 
         token.approve(address(vault), type(uint256).max);
-        vault.allowHarvestCall(address(token), 0x40c10f19, true);
+        vault.allowHarvester(address(token), true);
     }
 
     function testVaultMetadata() public {

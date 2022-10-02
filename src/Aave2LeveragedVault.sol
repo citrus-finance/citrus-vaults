@@ -3,12 +3,10 @@ pragma solidity 0.8.15;
 
 import "BoringSolidity/interfaces/IERC20.sol";
 
-import "./external/aave-v2/IAToken.sol";
 import "./external/aave-v2/ILendingPool.sol";
 import "./external/aave-v2/IAaveIncentivesController.sol";
 
 import "./mixins/LeveragedLendingVault.sol";
-
 
 contract Aave2LeveragedVault is LeveragedLendingVault {
     ILendingPool lendingPool;

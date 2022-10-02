@@ -11,9 +11,11 @@ contract Swapper {
         address[] memory path,
         uint256 minAmountOut
     ) public {
+        uint256 amountIn = ERC20(path[0]).balanceOf(address(this)) - 1;
+        ERC20(path[0]).approve(router, amountIn);
         IUniswapV2Router02 honeyswapRouter = IUniswapV2Router02(router);
         honeyswapRouter.swapExactTokensForTokens(
-            ERC20(path[0]).balanceOf(address(this)),
+            amountIn,
             minAmountOut,
             path,
             address(this),

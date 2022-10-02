@@ -35,7 +35,7 @@ contract VaultTest is Test {
 
         vault.setFeeTaker(feeTaker);
         
-        vault.allowHarvestCall(address(token), 0x40c10f19, true);
+        vault.allowHarvester(address(token), true);
     }
 
     function testFeeOnWithdrawal() public {
@@ -173,6 +173,10 @@ contract VaultTest is Test {
         vault.harvest(calls);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 101e18);
+
+        address[] memory harvesters = vault.allHarvesters();
+        assertEq(harvesters.length, 1);
+        assertEq(harvesters[0], address(token));
     }
 
     function testHarvestWithFees() public {
@@ -192,7 +196,7 @@ contract VaultTest is Test {
     }
 
     function testNotOnHarvestWhitelist() public {
-        vault.allowHarvestCall(address(token), 0x40c10f19, false);
+        vault.allowHarvester(address(token), false);
 
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
@@ -204,7 +208,7 @@ contract VaultTest is Test {
             target: address(token),
             callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1e18)
         });
-        vm.expectRevert(bytes("method not whitelisted"));
+        vm.expectRevert(bytes("harvestor not allowed"));
         vault.harvest(calls);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 100e18);

@@ -58,9 +58,6 @@ contract Aave2LeveragedVaultTest is Test {
 
         IUniswapV2Router02 honeyswapRouter = IUniswapV2Router02(0x1C232F01118CB8B424793ae03F870aa7D0ac7f77);
 
-        vault.increaseAllowance(ERC20(tokens[0]), address(honeyswapRouter));
-        vault.increaseAllowance(ERC20(tokens[1]), address(honeyswapRouter));
-
         address[] memory agveSwapPath = new address[](3);
         agveSwapPath[0] = tokens[0];
         agveSwapPath[1] = address(0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1);
@@ -70,8 +67,8 @@ contract Aave2LeveragedVaultTest is Test {
         gnoSwapPath[0] = tokens[1];
         gnoSwapPath[1] = address(wxdai);
 
-        vault.allowHarvestCall(address(balancerPoolManager), 0x37a31fb6, true);
-        vault.allowHarvestCall(address(swapper), 0x0004a85b, true);
+        vault.allowHarvester(address(balancerPoolManager), true);
+        vault.allowHarvester(address(swapper), true);
 
         uint256[] memory minAmountsOut = new uint256[](2);
 
