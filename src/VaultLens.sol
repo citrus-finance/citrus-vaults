@@ -6,6 +6,14 @@ import "./mixins/Vault.sol";
 import "./utils/LogExpMath.sol";
 
 contract VaultLens {
+    // @dev Instead of updating this, consider versioning it
+    struct StableVaultMetadataV1 {
+        address vault;
+        address asset;
+        int256 apy;
+        uint256 totalAssets;
+    }
+
     struct VaultMetadata {
         address vault;
         address asset;
@@ -43,6 +51,18 @@ contract VaultLens {
             harvestFee: vault.harvestFee(),
             totalAssets: vault.totalAssets(),
             harvestable: vault.harvestable()
+        });
+    }
+
+    function getVaultMetadataV1(Vault vault) public view returns (StableVaultMetadataV1 memory) {
+        (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
+        int256 apy = (int256(LogExpMath.pow(uint256(diffAssetsPerShare + 1e18), (365 days / diffTimestamp) * 1e18)) - 1e18) * 100;
+
+        return StableVaultMetadataV1({
+            vault: address(vault),
+            asset: address(vault.asset()),
+            apy: apy,
+            totalAssets: vault.totalAssets()
         });
     }
 
