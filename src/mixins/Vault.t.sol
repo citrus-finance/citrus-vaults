@@ -177,6 +177,8 @@ contract VaultTest is Test {
         address[] memory harvesters = vault.allHarvesters();
         assertEq(harvesters.length, 1);
         assertEq(harvesters[0], address(token));
+        assertTrue(vault.allowedHarvesters(address(token)));
+        assertFalse(vault.allowedHarvesters(address(0)));
     }
 
     function testHarvestWithFees() public {
