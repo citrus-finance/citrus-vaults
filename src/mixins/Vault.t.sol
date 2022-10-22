@@ -58,6 +58,44 @@ contract VaultTest is Test {
         assertEq(vault.balanceOf(feeTaker), 1e18);
     }
 
+    function testFeeOnLowWithdrawal() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 100e18);
+
+        assertEq(vault.balanceOf(address(this)), 0);
+
+        vault.deposit(100e18, address(this));
+
+        assertEq(vault.balanceOf(address(this)), 100e18);
+
+        vault.withdraw(99, address(this), address(this));
+
+        assertEq(token.balanceOf(address(this)), 99);
+        assertEq(token.balanceOf(address(vault)), 100e18 - 99);
+        assertEq(vault.balanceOf(feeTaker), 1);
+        assertEq(vault.balanceOf(address(this)), 100e18 - 100);
+    }
+
+    function testFeeOnMaxLowWithdrawal() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 100);
+
+        assertEq(vault.balanceOf(address(this)), 0);
+
+        vault.deposit(100, address(this));
+
+        assertEq(vault.balanceOf(address(this)), 100);
+
+        vault.withdraw(99, address(this), address(this));
+
+        assertEq(token.balanceOf(address(this)), 99);
+        assertEq(token.balanceOf(address(vault)), 1);
+        assertEq(vault.balanceOf(feeTaker), 1);
+        assertEq(vault.balanceOf(address(this)), 0);
+    }
+
     function testFeeOnRedeem() public {
         vault.setWithdrawalFee(0.01e18); // 1%
 
@@ -77,6 +115,36 @@ contract VaultTest is Test {
         assertEq(vault.balanceOf(address(this)), 0);
         assertEq(token.balanceOf(address(vault)), 901e18);
         assertEq(vault.balanceOf(feeTaker), 1e18);
+    }
+
+    function testFeeOnLowRedeem() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 100e18);
+
+        vault.deposit(100e18, address(this));
+
+        vault.redeem(99, address(this), address(this));
+
+        assertEq(token.balanceOf(address(this)), 98);
+        assertEq(token.balanceOf(address(vault)), 100e18 - 98);
+        assertEq(vault.balanceOf(address(this)), 100e18 - 99);
+        assertEq(vault.balanceOf(feeTaker), 1);
+    }
+
+    function testFeeOnMaxLowRedeem() public {
+        vault.setWithdrawalFee(0.01e18); // 1%
+
+        token.mint(address(this), 99);
+
+        vault.deposit(99, address(this));
+
+        vault.redeem(99, address(this), address(this));
+
+        assertEq(token.balanceOf(address(this)), 98);
+        assertEq(token.balanceOf(address(vault)), 1);
+        assertEq(vault.balanceOf(address(this)), 0);
+        assertEq(vault.balanceOf(feeTaker), 1);
     }
 
     function testExcludedFromFeeOnWithdrawal() public {

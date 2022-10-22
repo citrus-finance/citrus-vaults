@@ -215,8 +215,8 @@ abstract contract Vault is ERC4626, BoringOwnable {
     }
 
     function beforeWithdraw(uint256 assets, uint256 shares) internal override {
-        if (!excludedFromFees[msg.sender]) {
-            _mint(feeTaker, shares.mulDivDown(withdrawalFee, 1e18));
+        if (withdrawalFee != 0 && !excludedFromFees[msg.sender]) {
+            _mint(feeTaker, shares.mulDivUp(withdrawalFee, 1e18));
         }
         onWithdraw(assets);
     }
@@ -239,7 +239,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
 
         if (excludedFromFees[msg.sender]) {
             _withdrawalFee = 0;
-        } 
+        }
 
         return convertToAssets(shares).mulDivDown(1e18 - _withdrawalFee, 1e18);
     }
