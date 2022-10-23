@@ -72,7 +72,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
     // modified version of: https://github.com/makerdao/multicall/blob/1e1b44362640820bef92d0ccf5eeee25d9b41474/src/Multicall.sol#L17-L25
     // @dev The caller could steal the harvest but should not be able to steal any of the deposited funds.
     // Stealing the harvest would result in bad PR and users withdrawing their funds without losing their principal.
-    function harvest(HarvestCall[] memory calls) public virtual onlyManager returns (bytes[] memory returnData) {
+    function harvest(HarvestCall[] memory calls, uint256 amountOutMin) public virtual onlyManager returns (bytes[] memory returnData) {
         uint256 balanceBefore = totalAssets();
 
         onHarvest();
@@ -105,6 +105,8 @@ abstract contract Vault is ERC4626, BoringOwnable {
         unchecked {
           diffBalance = balanceAfter - balanceBefore;
         }
+
+        require(diffBalance >= amountOutMin, "insufficient output amount");
 
         uint256 denom = balanceBefore + (diffBalance.mulDivUp(1e18 - harvestFee, 1e18));
         uint256 harveterShares = totalSupply.mulDivDown(balanceAfter, denom) - totalSupply;

@@ -238,7 +238,7 @@ contract VaultTest is Test {
 
         HarvestCall[] memory calls = new HarvestCall[](0);
         token.mint(address(vault), 1e18);
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 101e18);
 
@@ -259,11 +259,28 @@ contract VaultTest is Test {
 
         HarvestCall[] memory calls = new HarvestCall[](0);
         token.mint(address(vault), 9e18);
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 109e18);
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 109e18);
     }
+
+    function testHarvestWithLowerExpectedOutput() public {
+        token.mint(address(this), 100e18);
+        vault.deposit(100e18, address(this));
+
+        assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 100e18);
+
+        HarvestCall[] memory calls = new HarvestCall[](1);
+        calls[0] = HarvestCall({
+            target: address(token),
+            callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1e18)
+        });
+
+        vm.expectRevert(bytes("insufficient output amount"));
+        vault.harvest(calls, 2e18);
+    }
+    
 
     function testNotOnHarvestWhitelist() public {
         vault.allowHarvester(address(token), false);
@@ -279,7 +296,7 @@ contract VaultTest is Test {
             callData: abi.encodeWithSignature("mint(address,uint256)", address(vault), 1e18)
         });
         vm.expectRevert(bytes("harvestor not allowed"));
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 100e18);
     }
@@ -294,7 +311,7 @@ contract VaultTest is Test {
 
         HarvestCall[] memory calls = new HarvestCall[](0);
         token.mint(address(vault), 10e18);
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         assertEq(vault.convertToAssets(1e18), 1.1e18);
 
@@ -327,7 +344,7 @@ contract VaultTest is Test {
 
         token.mint(address(vault), 0.04e18);
         
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
 
@@ -345,13 +362,13 @@ contract VaultTest is Test {
 
         token.mint(address(vault), 10e18);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         skip(1 days);
 
         token.mint(address(vault), 0.04e18);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
@@ -372,7 +389,7 @@ contract VaultTest is Test {
 
         token.mint(address(vault), 1);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         (uint256 diffTimestamp, int256 diffAssetsPerShare) = vault.yield();
 
