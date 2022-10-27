@@ -13,7 +13,7 @@ contract LPTokenTest is Test {
     ERC20 HopLpUsdc = ERC20(0x9D373d22FD091d7f9A6649EB067557cc12Fb1A0A);
 
     function setUp() public {
-        vm.createSelectFork(vm.envString("GNOSIS_RPC"));
+        vm.createSelectFork(vm.envString("GNOSIS_RPC"), 24_754_909);
     }
 
     function testWithHToken() public {
@@ -40,7 +40,6 @@ contract LPTokenTest is Test {
 
         uint256 LPTokenAmount = HopLpUsdc.balanceOf(address(this));
 
-        console.log("block.number", block.number);
         console.log("LPToken amount:", LPTokenAmount);
     }
 
@@ -64,7 +63,6 @@ contract LPTokenTest is Test {
 
         uint256 LPTokenAmount = HopLpUsdc.balanceOf(address(this));
 
-        console.log("block.number", block.number);
         console.log("LPToken amount:", LPTokenAmount);
     }
 }
