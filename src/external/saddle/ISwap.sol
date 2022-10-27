@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import "BoringSolidity/interfaces/IERC20.sol";
 
-import "./IAllowlist.sol";
+import "./IAllowList.sol";
 
 interface ISwap {
     // pool data view functions
