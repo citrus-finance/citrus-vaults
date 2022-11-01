@@ -29,6 +29,8 @@ abstract contract Vault is ERC4626, BoringOwnable {
     event UpdateFeeExclusion(address user, bool excluded);
     event UpdateAllowedHarvester(address target, bool allowed);
     event Harvest(uint assetsPerShare, uint sharesToHarvester);
+    event UpdateWithdrawalFee(uint256 oldFee, uint256 newFee);
+    event UpdateHarvestFee(uint256 oldFee, uint256 newFee);
 
     // @notice The manager is allowed to perform some privileged actions on the vault, 
     address public manager;
@@ -203,11 +205,19 @@ abstract contract Vault is ERC4626, BoringOwnable {
     }
 
     function setWithdrawalFee(uint256 _withdrawalFee) public onlyOwner {
+        require(_withdrawalFee <= 0.01e18, "the withdrawal fee can be max 1%");
+
+        uint256 oldFee = withdrawalFee;
         withdrawalFee = _withdrawalFee;
+
+        emit UpdateWithdrawalFee(oldFee, _withdrawalFee);
     }
 
     function setHarvestFee(uint256 _harvestFee) public onlyOwner {
+        uint256 oldFee = harvestFee;
         harvestFee = _harvestFee;
+
+        emit UpdateHarvestFee(oldFee, _harvestFee);
     }
 
     /////  ERC4626 hooks  /////

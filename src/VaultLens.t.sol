@@ -184,12 +184,12 @@ contract VaultLensTest is Test {
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
 
-        vault.setWithdrawalFee(0.1e18);
+        vault.setWithdrawalFee(0.01e18);
         vault.setHarvestFee(0.2e18);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
 
-        assertEq(metadata.withdrawalFee, 0.1e18);
+        assertEq(metadata.withdrawalFee, 0.01e18);
         assertEq(metadata.harvestFee, 0.2e18);
     }
 }
