@@ -77,7 +77,7 @@ contract HopVaultTest is Test {
             )
         });
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         console.log("profit", vault.totalAssets());
     }
@@ -122,7 +122,7 @@ contract HopVaultTest is Test {
             )
         });
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         console.log("profit", vault.totalAssets());
     }
