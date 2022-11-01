@@ -8,15 +8,14 @@ import "../external/uniswap-v2/IUniswapV2Router02.sol";
 contract Swapper {
     function uniswapSwap(
         address router,
-        address[] memory path,
-        uint256 minAmountOut
+        address[] memory path
     ) public {
         uint256 amountIn = ERC20(path[0]).balanceOf(address(this)) - 1;
         ERC20(path[0]).approve(router, amountIn);
         IUniswapV2Router02 honeyswapRouter = IUniswapV2Router02(router);
         honeyswapRouter.swapExactTokensForTokens(
             amountIn,
-            minAmountOut,
+            0,
             path,
             address(this),
             block.timestamp

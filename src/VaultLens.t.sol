@@ -62,7 +62,7 @@ contract VaultLensTest is Test {
 
         token.mint(address(vault), 0.04e18);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
 
@@ -79,13 +79,13 @@ contract VaultLensTest is Test {
 
         token.mint(address(vault), 10e18);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         skip(1 days);
 
         token.mint(address(vault), 0.04e18);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
 
@@ -102,7 +102,7 @@ contract VaultLensTest is Test {
 
         skip(1 days);
 
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         VaultLens.VaultMetadata memory metadata = lens.getVaultMetadata(vault);
 

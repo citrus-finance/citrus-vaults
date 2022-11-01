@@ -99,7 +99,7 @@ contract Aave2LeveragedVaultTest is Test {
                 minAmountsOut[0]
             )
         });
-        vault.harvest(calls);
+        vault.harvest(calls, 0);
 
         console.log("profit", vault.totalAssets());
     }
