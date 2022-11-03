@@ -230,6 +230,19 @@ contract VaultTest is Test {
         assertEq(vault.convertToAssets(100e18), 200e18);
     }
 
+    function testTooHighWithdrawalFee() public {
+        vm.expectRevert("the withdrawal fee can be max 1%");
+        vault.setWithdrawalFee(0.50e18); // 50%
+    }
+
+    event UpdateWithdrawalFee(uint256 oldFee, uint256 newFee);
+
+    function testWithdrawalFeeEvent() public {
+        vm.expectEmit(false, false, false, true, address(vault));
+        emit UpdateWithdrawalFee(0, 0.01e18);
+        vault.setWithdrawalFee(0.01e18); // 1%
+    }
+
     function testHarvest() public {
         token.mint(address(this), 100e18);
         vault.deposit(100e18, address(this));
@@ -263,6 +276,14 @@ contract VaultTest is Test {
 
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 109e18);
         assertEq(vault.convertToAssets(vault.balanceOf(address(this))), 109e18);
+    }
+
+    event UpdateHarvestFee(uint256 oldFee, uint256 newFee);
+
+    function testHarvestFeeEvent() public {
+        vm.expectEmit(false, false, false, true, address(vault));
+        emit UpdateHarvestFee(0, 0.1e18);
+        vault.setHarvestFee(0.1e18); // 10%
     }
 
     function testHarvestWithLowerExpectedOutput() public {
