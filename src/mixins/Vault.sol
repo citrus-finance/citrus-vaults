@@ -32,6 +32,8 @@ abstract contract Vault is ERC4626, BoringOwnable {
     event UpdateWithdrawalFee(uint256 oldFee, uint256 newFee);
     event UpdateHarvestFee(uint256 oldFee, uint256 newFee);
 
+    uint256 public constant MAX_WITHDRAWAL_FEE = 0.01e18; // 1%
+
     // @notice The manager is allowed to perform some privileged actions on the vault, 
     address public manager;
 
@@ -205,7 +207,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
     }
 
     function setWithdrawalFee(uint256 _withdrawalFee) public onlyOwner {
-        require(_withdrawalFee <= 0.01e18, "the withdrawal fee can be max 1%");
+        require(_withdrawalFee <= MAX_WITHDRAWAL_FEE, "the withdrawal fee can be max 1%");
 
         uint256 oldFee = withdrawalFee;
         withdrawalFee = _withdrawalFee;
