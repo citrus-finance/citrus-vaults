@@ -73,6 +73,7 @@ contract HopVaultTest is Test {
                 saddlePoolManager.addLiquidity.selector,
                 address(swap),
                 0,
+                2,
                 0
             )
         });
@@ -118,7 +119,9 @@ contract HopVaultTest is Test {
                 saddlePoolManager.swapAndAddLiquidity.selector,
                 address(swap),
                 0,
-                0
+                2,
+                0,
+                1
             )
         });
 
