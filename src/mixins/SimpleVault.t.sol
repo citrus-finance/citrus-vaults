@@ -25,6 +25,15 @@ contract MockSimpleVault is SimpleVault {
         MockERC20(address(asset)).mint(address(this), amount);
     }
 
+    function getRemainingProtocolSupplyCap()
+        public
+        pure
+        override
+        returns (uint256)
+    {
+        return type(uint256).max;
+    }
+
     function collectHarvest() internal virtual override {}
 
     function harvestable()

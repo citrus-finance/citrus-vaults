@@ -57,6 +57,18 @@ abstract contract SimpleVault is Vault {
     function redeemFromProtocol(uint256 amount) internal virtual;
 
     /**
+     * @notice Get remaining supply cap in the protocol
+     * @return remainingSupplyCap
+     * @dev ignored on this version
+     * @dev should return 0 if the supply cap is exhausted
+     */
+    function getRemainingProtocolSupplyCap()
+        public
+        view
+        virtual
+        returns (uint256);
+
+    /**
      * @notice Colect rewards token from protocol
      */
     function collectHarvest() internal virtual {}

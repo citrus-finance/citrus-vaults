@@ -33,6 +33,15 @@ contract HopVault is SimpleVault {
         stakingRewards.withdraw(amount);
     }
 
+    function getRemainingProtocolSupplyCap()
+        public
+        pure
+        override
+        returns (uint256)
+    {
+        return type(uint256).max;
+    }
+
     function collectHarvest() internal override {
         stakingRewards.getReward();
     }
