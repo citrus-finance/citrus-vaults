@@ -21,4 +21,19 @@ contract Swapper {
             block.timestamp
         );
     }
+
+    function approveAndCall(
+        address exchange,
+        bytes calldata data,
+        address inputToken
+     ) public {
+        uint256 amountIn = ERC20(inputToken).balanceOf(address(this));
+
+        ERC20(inputToken).approve(exchange, amountIn);
+
+        (bool success, string memory errorMessage) = address(exchange).call(data);
+        if (!success) {
+            revert(errorMessage);
+        }
+    }
 }
