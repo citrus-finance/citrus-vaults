@@ -26,14 +26,19 @@ contract Swapper {
         address exchange,
         bytes calldata data,
         address inputToken
-     ) public {
+    ) public {
         uint256 amountIn = ERC20(inputToken).balanceOf(address(this));
 
         ERC20(inputToken).approve(exchange, amountIn);
 
-        (bool success, string memory errorMessage) = address(exchange).call(data);
+        (bool success, bytes memory errorMessage) = address(exchange).call(data);
         if (!success) {
-            revert(errorMessage);
+            // Next 5 lines from https://ethereum.stackexchange.com/a/83577
+            if (errorMessage.length < 68) revert();
+            assembly {
+                errorMessage := add(errorMessage, 0x04)
+            }
+            revert(abi.decode(errorMessage, (string)));
         }
     }
 }
