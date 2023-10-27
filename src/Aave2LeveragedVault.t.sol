@@ -33,8 +33,8 @@ contract Aave2LeveragedVaultTest is Test {
         );
         balancerPoolManager = new BalancerPoolManager();
         swapper = new Swapper();
-        vault.setMaxCollateralRatio(0.8e18);
-        vault.setTargetCollateralRatio(0.78e18);
+        vault.setMaxCollateralRatio(0.75e18);
+        vault.setTargetCollateralRatio(0.74e18);
         vault.setManager(address(this));
         wxdai.approve(address(vault), type(uint256).max);
         vault.setHarvestFee(0.05e18);
@@ -102,5 +102,7 @@ contract Aave2LeveragedVaultTest is Test {
         vault.harvest(calls, 0);
 
         console.log("profit", vault.totalAssets());
+
+        vault.redeem(vault.balanceOf(address(this)), address(this), address(this));
     }
 }

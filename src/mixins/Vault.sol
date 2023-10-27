@@ -113,16 +113,16 @@ abstract contract Vault is ERC4626, BoringOwnable {
         require(diffBalance >= amountOutMin, "insufficient output amount");
 
         uint256 denom = balanceBefore + (diffBalance.mulDivUp(1e18 - harvestFee, 1e18));
-        uint256 harveterShares = totalSupply.mulDivDown(balanceAfter, denom) - totalSupply;
+        uint256 harvesterShares = totalSupply.mulDivDown(balanceAfter, denom) - totalSupply;
 
-        _mint(feeTaker, harveterShares);
+        _mint(feeTaker, harvesterShares);
 
         uint256 assetsPerShare = convertToAssets(10 ** decimals);
         harvestCheckpoints.push(HarvestCheckpoint({
             blockTimestamp: uint32(block.timestamp),
             assetsPerShare: uint224(assetsPerShare)
         }));
-        emit Harvest(assetsPerShare, harveterShares);
+        emit Harvest(assetsPerShare, harvesterShares);
 
         afterHarvest();
     }
@@ -240,7 +240,7 @@ abstract contract Vault is ERC4626, BoringOwnable {
 
         if (excludedFromFees[msg.sender]) {
             _withdrawalFee = 0;
-        } 
+        }
 
         uint256 supply = totalSupply; // Saves an extra SLOAD if totalSupply is non-zero.
 
